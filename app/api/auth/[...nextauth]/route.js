@@ -9,6 +9,8 @@ import sendMail from "@/lib/nodemailer";
 import { comparePassword, createSecurePassword } from "@/lib/password";
 import { validateEmailFormat } from "@/lib/mail";
 
+const isProd = process.env.NODE_ENV === "production";
+
 export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
@@ -114,6 +116,38 @@ export const authOptions = {
     async session({ session, token }) {
       session.user.id = token.id;
       return session;
+    },
+  },
+
+  cookies: {
+    sessionToken: {
+      name: "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: isProd ? "none" : "lax",
+        path: "/",
+        secure: isProd,
+        domain: isProd ? ".mewwstore.com" : ".localhost",
+      },
+    },
+    callbackUrl: {
+      name: "next-auth.callback-url",
+      options: {
+        sameSite: isProd ? "none" : "lax",
+        path: "/",
+        secure: isProd,
+        domain: isProd ? ".mewwstore.com" : ".localhost",
+      },
+    },
+    csrfToken: {
+      name: "next-auth.csrf-token",
+      options: {
+        httpOnly: true,
+        sameSite: isProd ? "none" : "lax",
+        path: "/",
+        secure: isProd,
+        domain: isProd ? ".mewwstore.com" : ".localhost",
+      },
     },
   },
 };
